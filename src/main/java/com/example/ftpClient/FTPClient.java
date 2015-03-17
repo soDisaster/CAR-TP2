@@ -36,11 +36,12 @@ public class FTPClient{
 		
 		commandes.CMDUSER("rosa");
 		commandes.CMDPASS("Azerty2");
-		commandes.CMDLIST("");
 		
 	}	
 	
-
+	public FTPCommandes getCommandes(){
+		return this.commandes;
+	}
 	
 	private void loop(){
 		String cmd="";

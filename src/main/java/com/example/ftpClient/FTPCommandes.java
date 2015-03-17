@@ -62,7 +62,7 @@ public class FTPCommandes {
 		out.write(new String("QUIT\n").getBytes());
 	}
 
-	public void CMDLIST(String file) throws IOException{
+	public  String CMDLIST(String file) throws IOException{
 		ServerSocket server =CMDPORT("127,0,0,1");
 		out.write(new String("LIST\n").getBytes());
 		read("150");
@@ -77,16 +77,12 @@ public class FTPCommandes {
 		while((nbOfbyte = r.read(buffer))>0){
 			result = new String(buffer);
 		}
-		String[] test = result.split("\r\n");
-		for(int i = 0; i < test.length - 1; i++){
-			if(test[i].length()>0)
-			System.out.println(test[i]);
+		
 
-		}
-
-
+		
 		server.close();
 		read("226");
+		return result;
 	}
 
 
@@ -164,6 +160,14 @@ public class FTPCommandes {
 		port += 42;
 
 		return new ServerSocket(port);
+
+	}
+	public void CMDCWD(String path) throws IOException{
+
+		
+		out.write(new String("CWD "+path+"\n").getBytes());
+		read("250");	
+
 
 	}
 

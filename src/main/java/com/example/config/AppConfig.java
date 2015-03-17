@@ -1,5 +1,7 @@
 package com.example.config;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +31,7 @@ public class AppConfig {
 	}
 	
 	@Bean @DependsOn( "cxf" )
-	public Server jaxRsServer() {
+	public Server jaxRsServer() throws UnknownHostException, IOException {
 		JAXRSServerFactoryBean factory = RuntimeDelegate.getInstance().createEndpoint( jaxRsApiApplication(), JAXRSServerFactoryBean.class );
 		
 		List<Object> serviceBeans = new ArrayList<Object>();
