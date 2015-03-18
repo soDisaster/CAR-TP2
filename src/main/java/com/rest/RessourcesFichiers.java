@@ -31,8 +31,11 @@ public class RessourcesFichiers {
 	@Path("/data")
 	@Produces("text/html")
 	public String getFiles() throws IOException {
+		if(this.commandes.CMDCWD("/data")){
+			return list(new File(this.commandes.getCurrentDir()));
+		}
+		return "<h1>PATH NOT FOUND</h1>";
 
-		return list(new File(this.commandes.getCurrentDir()));
 	}
 
 
@@ -40,18 +43,25 @@ public class RessourcesFichiers {
 	@Path("/data/{name}")
 	@Produces("text/html")
 	public String getFile(@PathParam( "name" ) String name)throws IOException  {
-		return searchFile(name);
+		if(this.commandes.CMDCWD("/data")){
+			return searchFile(name);
+		}
+		return "<h1>PATH NOT FOUND</h1>";
 	}
 
 	@GET
 	@Path("/data/{dir}/{name}")
 	@Produces("text/html")
-	public String getFile(@PathParam( "name" ) String name,@PathParam( "name" ) String dir)throws IOException  {
-		return searchFile(name);
+	public String getFile(@PathParam( "name" ) String name,@PathParam( "dir" ) String dir)throws IOException  {
+		System.out.println(this.commandes.getCurrentDir());
+		if(this.commandes.CMDCWD("/data/"+dir)){
+			return searchFile(name);
+		}
+		return "<h1>PATH NOT FOUND</h1>";
 	}
 
-	
-	
+
+
 	public String searchFile(String name) throws IOException{
 		System.out.println(name);
 		File f;
@@ -97,9 +107,9 @@ public class RessourcesFichiers {
 		return "<h1>FILE NOT FOUND</h1>";
 	}
 
-	
-	
-	
+
+
+
 	public String read(File f) throws IOException{
 		String result ="";
 		FileInputStream br = new FileInputStream(f);
@@ -113,9 +123,9 @@ public class RessourcesFichiers {
 		return result;
 	}
 
-	
-	
-	
+
+
+
 	public String list(File f) throws IOException{
 		String result="";
 		System.out.println(this.commandes.getCurrentDir());
@@ -131,6 +141,6 @@ public class RessourcesFichiers {
 		return result ;
 
 	}
-	
+
 
 }
