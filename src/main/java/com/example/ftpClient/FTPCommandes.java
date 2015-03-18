@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
@@ -17,11 +16,12 @@ public class FTPCommandes {
 
 	private BufferedReader in;
 	private DataOutputStream out;
-	private ServerSocket serv;
+	private String currentLoc ;
 
 	public FTPCommandes(BufferedReader in, DataOutputStream out) {
 		this.in=in;
 		this.out=out;
+		this.currentLoc ="data";
 	}
 
 
@@ -41,7 +41,7 @@ public class FTPCommandes {
 
 
 	}
-	public void read(String code) throws IOException{
+	public boolean read(String code) throws IOException{
 		String s = "";
 		boolean codeOK=false;
 
@@ -51,11 +51,19 @@ public class FTPCommandes {
 				if(s.equals(code)){
 					codeOK=true;
 					System.out.println(s);
+					
+				}
+				
+				if(s.equals("550")){
+					codeOK=true;
+					System.out.println(s);
+					return false;
 				}
 
 			}
 
 		}
+		return true;
 	}
 
 	public void CMDQUIT(String s) throws IOException{
@@ -71,10 +79,9 @@ public class FTPCommandes {
 		DataInputStream r = new DataInputStream(soc.getInputStream());
 
 		byte [] buffer = new byte[soc.getReceiveBufferSize()];
-		int nbOfbyte;
 		String result="";
 
-		while((nbOfbyte = r.read(buffer))>0){
+		while( r.read(buffer)>0){
 			result = new String(buffer);
 		}
 		
@@ -88,7 +95,7 @@ public class FTPCommandes {
 
 
 
-	public void CMDRETR(String file) throws IOException{
+	public boolean CMDRETR(String file) throws IOException{
 		ServerSocket server =CMDPORT("127,0,0,1");
 		out.write(new String("RETR " +file+"\n").getBytes());
 		read("150");
@@ -97,7 +104,7 @@ public class FTPCommandes {
 		DataInputStream r = new DataInputStream(soc.getInputStream());
 
 		try{
-			FileOutputStream br = new FileOutputStream(new File("data/"+file));
+			FileOutputStream br = new FileOutputStream(new File(this.currentLoc+"/"+file));
 
 
 			byte [] buffer = new byte[soc.getReceiveBufferSize()];
@@ -114,7 +121,11 @@ public class FTPCommandes {
 
 
 		server.close();
-		read("226");
+		if(!read("226")){
+			return false;
+		}
+		
+		return true;
 	}
 
 
@@ -123,11 +134,10 @@ public class FTPCommandes {
 		out.write(new String("STOR " +file+"\n").getBytes());
 		read("150");
 		Socket soc = server.accept();
-
 		DataOutputStream d = new DataOutputStream(soc.getOutputStream());
 
 		try{
-			FileInputStream br = new FileInputStream(new File("data/"+file));
+			FileInputStream br = new FileInputStream(new File(this.currentLoc+"/"+file));
 
 			byte [] buffer = new byte[soc.getReceiveBufferSize()];
 			int nbOfbyte;
@@ -162,13 +172,28 @@ public class FTPCommandes {
 		return new ServerSocket(port);
 
 	}
-	public void CMDCWD(String path) throws IOException{
+	public boolean CMDCWD(String path) throws IOException{
 
-		
+		String newPath;
+		if(path.charAt(0) =='/'){
+			 newPath = path.substring(1);
+		}
+		else{
+			newPath = this.currentLoc+"/"+path;
+		}
 		out.write(new String("CWD "+path+"\n").getBytes());
-		read("250");	
+
+		if(!read("250")){
+			return false;
+		}
+		this.currentLoc = newPath;
+		return true;	
 
 
+	}
+	
+	public String getCurrentDir(){
+		return this.currentLoc;
 	}
 
 }

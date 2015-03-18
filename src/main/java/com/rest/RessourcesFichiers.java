@@ -1,9 +1,10 @@
 package com.rest;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,68 +25,112 @@ public class RessourcesFichiers {
 		this.commandes=this.client.getCommandes();
 
 
+
 	}
 	@GET
 	@Path("/data")
 	@Produces("text/html")
 	public String getFiles() throws IOException {
-		String result =commandes.CMDLIST("");
-		String[] test = result.split("\r\n");
-		result="";
-		for(int i = 0; i < test.length - 1; i++){
-			if(test[i].length()>0)
 
-				result+="<a href='"+test[i]+"'>" +  test[i] + "</a></br>";
-		}
-		return result ;
+		return list(new File(this.commandes.getCurrentDir()));
 	}
 
 
 	@GET
-	@Path("/{name}")
+	@Path("/data/{name}")
 	@Produces("text/html")
 	public String getFile(@PathParam( "name" ) String name)throws IOException  {
+		return searchFile(name);
+	}
+
+	@GET
+	@Path("/data/{dir}/{name}")
+	@Produces("text/html")
+	public String getFile(@PathParam( "name" ) String name,@PathParam( "name" ) String dir)throws IOException  {
+		return searchFile(name);
+	}
+
+	
+	
+	public String searchFile(String name) throws IOException{
 		System.out.println(name);
 		File f;
-		try{
-			f=new File("data/"+name);
+
+		f=new File(this.commandes.getCurrentDir()+"/"+name);
+		if(f.exists()){
 			System.out.println(f);
 			if(f.isFile()){
 				System.out.println("Dans méthode isFile");
-				return "file lu";
+				return read(f);
 			}
 
 			if(f.isDirectory()){
-				this.commandes.CMDCWD(name);
-				String result = this.commandes.CMDLIST("");
-				String[] test = result.split("\r\n");
-				result="";
-				for(int i = 0; i < test.length - 1; i++){
-					if(test[i].length()>0)
-						result+="<a href='data/"+name+"/"+test[i]+"'>" +  test[i] + "</a></br>";
+				if(this.commandes.CMDCWD(name)){
+					return list(f);
 				}
-				return result ;
 
 
 			}
-		}catch(FileNotFoundException e){
+		}else{
 			System.out.println("FileNotFound");
-			this.commandes.CMDRETR(name);
-			f =new File("data/"+name);
-			return "file tel et lu";
+			boolean retour = this.commandes.CMDRETR(name);
+			System.out.println(f);
+
+			if(retour){
+				System.out.println("Dans méthode isFile");
+				return read(f);
+			}
+
+			if(!retour){
+				f.delete();
+				Files.createDirectory(f.toPath());
+				System.out.println("dossier :" +f.isDirectory());
+				if(this.commandes.CMDCWD(name)){
+					return list(f);
+				}
+			}
+
+
+
+
 		}
-
-		return "<h1>fail Bro</h1>";
-
+		return "<h1>FILE NOT FOUND</h1>";
 	}
 
+	
+	
+	
+	public String read(File f) throws IOException{
+		String result ="";
+		FileInputStream br = new FileInputStream(f);
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		byte [] buffer = new byte[(int) f.length()];
+
+		while(br.read(buffer) > 0){
+			result+= new String(buffer);
+		}
+		br.close();
+		return result;
+	}
+
+	
+	
+	
+	public String list(File f) throws IOException{
+		String result="";
+		System.out.println(this.commandes.getCurrentDir());
+		result = this.commandes.CMDLIST("");
+		String[] test = result.split("\r\n");
+		result="";
+		for(int i = 0; i < test.length - 1; i++){
+			if(test[i].length()>0)
+				result+="<a href='/rest/api/res/"+this.commandes.getCurrentDir()+"/"+test[i]+"'>" +  test[i] + "</a></br>";
+		}
+		result+="<a href='/rest/api/res/"+this.commandes.getCurrentDir()+"/..'>..</a></br>";
+		System.out.println("here");
+		return result ;
 
 	}
+	
 
 }

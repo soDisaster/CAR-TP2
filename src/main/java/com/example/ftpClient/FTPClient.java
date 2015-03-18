@@ -1,15 +1,12 @@
 package com.example.ftpClient;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 
 public class FTPClient{
@@ -37,25 +34,17 @@ public class FTPClient{
 		commandes.CMDUSER("rosa");
 		commandes.CMDPASS("Azerty2");
 		
+		
 	}	
 	
 	public FTPCommandes getCommandes(){
 		return this.commandes;
 	}
 	
-	private void loop(){
-		String cmd="";
-		String ligne;
-		Scanner sc = new Scanner(System.in);
-		
-		while (cmd.equals("QUIT")){
-			
-			ligne = sc.nextLine();
-			
-		}
-	}
+	
 	public static void main (String args[]) throws UnknownHostException, IOException{
 		
+		@SuppressWarnings("unused")
 		FTPClient client = new FTPClient();
 	}
 }
