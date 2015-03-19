@@ -138,7 +138,7 @@ public class RessourcesFichiers {
 			if(this.commandes.getCurrentDir().equals("data")){
 				result += "<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/"+name+"/edit\">"+
 						"<input type=\"submit\" value=\"Edit\">"+
-						"</form></br>";
+						"</form>";
 				result += "<button onclick= \"p()\">Delete</button>"+
 						"<script type=\"text/javascript\">"+
 						"function p(){"+	
@@ -149,6 +149,9 @@ public class RessourcesFichiers {
 						"xhr.send(null);"+
 						"};"+
 						"</script>";
+				result +="<form action=\"/rest/api/res/data\">"+
+						"<input type=\"submit\" value=\"Return\">"+
+						"</form></br>";
 			}else{
 				result +="<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/add\">"+
 						"<input type=\"submit\" value=\"Add File\">"+
@@ -187,6 +190,9 @@ public class RessourcesFichiers {
 						"xhr.send(null);"+
 						"};"+
 						"</script>";
+				result +="<form action=\"/rest/api/res/data/"+dir+"\">"+
+						"<input type=\"submit\" value=\"Return\">"+
+						"</form></br>";
 			}else{
 				result +="<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/add\">"+
 						"<input type=\"submit\" value=\"Add File\">"+
@@ -334,11 +340,14 @@ public class RessourcesFichiers {
 					"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
 					"xhr.onreadystatechange=function(){};"+
 					"xhr.open(\"PUT\", \"http://localhost:8080/rest/api/res/data\");"+
-					"xhr.send(null);"+
+					"xhr.send(\"<input type=\"text\" name=\"name\" id =\"name\"/>\");"+
 					"};"+
 					"</script>"+	
-					"</body>"+
-					"</html>";
+					"<form action=\"/rest/api/res/data\">"+
+							"<input type=\"submit\" value=\"Return\">"+
+							"</form></br>"+
+							"</body>"+
+							"</html>";
 		}
 		return "<h1>PATH NOT FOUND</h1>";
 	}
@@ -377,9 +386,12 @@ public class RessourcesFichiers {
 					"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
 					"xhr.onreadystatechange=function(){};"+
 					"xhr.open(\"PUT\", \"http://localhost:8080/rest/api/res/data/"+dir+"\");"+
-					"xhr.send(null);"+
+					"xhr.send(\"<input type=\"text\" name=\"name\" id =\"name\"/>\");"+
 					"};"+
 					"</script>"+	
+					"<form action=\"/rest/api/res/data/"+dir+"\">"+
+					"<input type=\"submit\" value=\"Return\">"+
+					"</form></br>"+
 					"</body>"+
 					"</html>";
 
@@ -403,6 +415,7 @@ public class RessourcesFichiers {
 
 	@PUT
 	@Path("/data/{dir}")
+	@Consumes("application/json")
 	@Produces("text/html")
 	public String addActionFile(@PathParam( "dir" ) String dir )throws IOException  {/*,
 		@FormParam( "name" )final String name,
@@ -447,7 +460,7 @@ public class RessourcesFichiers {
 	@Path("/data/{dir}/{name}")
 	@Produces("text/html")
 	public String deleteFile(@PathParam( "dir" ) String dir,
-			@FormParam( "name" )final String name)throws IOException  {
+			@PathParam( "name" )final String name)throws IOException  {
 
 		File f = new File(this.commandes.getCurrentDir()+"/"+name);
 		if(this.commandes.CMDDELE(name)){
