@@ -31,8 +31,7 @@ public class FTPClient{
 		
 		commandes= new FTPCommandes(in, out);
 		
-		commandes.CMDUSER("rosa");
-		commandes.CMDPASS("Azerty2");
+		
 		
 		
 	}	

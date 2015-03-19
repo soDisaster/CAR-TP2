@@ -34,10 +34,14 @@ public class FTPCommandes {
 	}
 
 
-	public void CMDPASS(String s) throws IOException{
+	public boolean CMDPASS(String s) throws IOException{
 		out.write(new String("PASS "+s+"\n").getBytes());
-		read("230");
-
+		
+		if(!read("230")){
+			return false;
+		}
+		
+		return true;
 
 
 	}
@@ -54,7 +58,7 @@ public class FTPCommandes {
 					
 				}
 				
-				if(s.equals("550")){
+				if(s.equals("550") || s.equals("430") ){
 					codeOK=true;
 					System.out.println(s);
 					return false;
@@ -124,12 +128,21 @@ public class FTPCommandes {
 		if(!read("226")){
 			return false;
 		}
-		
 		return true;
 	}
 
+	
+	public boolean CMDDELE(String file) throws IOException{
+		
+		out.write(new String("DELE " +file+"\n").getBytes());
+		
+		if(!read("226")){
+			return false;
+		}
+		return true;
+	}
 
-	public void CMDSTOR(String file) throws IOException{
+	public boolean CMDSTOR(String file) throws IOException{
 		ServerSocket server =CMDPORT("127,0,0,1");
 		out.write(new String("STOR " +file+"\n").getBytes());
 		read("150");
@@ -144,7 +157,6 @@ public class FTPCommandes {
 			while((nbOfbyte = br.read(buffer)) > 0){
 				d.write(buffer,0,nbOfbyte);
 			}
-
 			d.flush();
 			br.close();
 			/* Data connection open; no transfer in progress.*/
@@ -152,10 +164,15 @@ public class FTPCommandes {
 			/* Erreur */
 
 		}
-
-
 		server.close();
-		read("226");
+		if(!read("226")){
+			
+			return false;
+		}
+		return true;
+
+		
+		
 	}
 
 	public ServerSocket CMDPORT(String addr) throws IOException{
