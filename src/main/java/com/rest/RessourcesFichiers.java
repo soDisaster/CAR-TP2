@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -30,7 +31,6 @@ public class RessourcesFichiers {
 		this.client = new FTPClient();
 		this.commandes=this.client.getCommandes();
 		this.login = true;
-		//this.commandes.CMDSTOR("dd.txt");
 
 
 	}
@@ -330,13 +330,11 @@ public class RessourcesFichiers {
 					"<button onclick= \"p()\">Submit</button>"+
 					"<script type=\"text/javascript\">"+
 					"function p(){"+
-					"$.ajax({"+
-					   " url: 'http://localhost:8080/rest/api/res/data',"+
-					   " type: 'PUT',"+
-					    "success: function(result) {"+
-					    "    // Do something with the result"+
-					    "}"+
-					"});"+
+					"console.log(\"Ici\");"+
+					"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
+					"xhr.onreadystatechange=function(){};"+
+					"xhr.open(\"PUT\", \"http://localhost:8080/rest/api/res/data\");"+
+					"xhr.send(null);"+
 					"};"+
 					"</script>"+	
 					"</body>"+
@@ -391,25 +389,29 @@ public class RessourcesFichiers {
 
 	@PUT
 	@Path("/data")
-	public String addFile(@FormParam( "name" )final String name,
-			@FormParam( "content" ) final String content )throws IOException  {
-		System.out.println(name +" : "+ content);
-		File f = new File(this.commandes.getCurrentDir()+"/"+name);
-		write(f,content);
-		this.commandes.CMDSTOR(name);
+	@Produces("text/html")
+	public String addActionFile()throws IOException  {/*@FormParam( "name" )final String name,
+		@FormParam( "content" ) final String content */
+		//System.out.println(name +" : "+ content);
+		File f = new File(this.commandes.getCurrentDir()+"/toto.txt");
+		//write(f,content);
+		write(f,"uiiuiuiu");
+		this.commandes.CMDSTOR("toto.txt");
 		return getFiles();
 	}
 
 
 	@PUT
 	@Path("/data/{dir}")
-	public String addFile(@PathParam( "dir" ) String dir,
-			@FormParam( "name" )final String name,
-			@FormParam( "content" ) final String content )throws IOException  {
+	@Produces("text/html")
+	public String addActionFile(@PathParam( "dir" ) String dir )throws IOException  {/*,
+		@FormParam( "name" )final String name,
+		@FormParam( "content" ) final String content*/
 
-		File f = new File(this.commandes.getCurrentDir()+"/"+name);
-		write(f,content);
-		this.commandes.CMDSTOR(name);
+		File f = new File(this.commandes.getCurrentDir()+"/toto.txt");
+		//write(f,content);
+				write(f,"uiiuiuiu");
+		this.commandes.CMDSTOR("toto.txt");
 		return getFile(dir);
 	}
 	/*--------------------------------------- DELETE FILES ------------------------------------------------*/
@@ -418,6 +420,7 @@ public class RessourcesFichiers {
 
 	@DELETE
 	@Path("/data/{name}")
+	@Produces("text/html")
 	public String deleteFile(@PathParam ( "name" )final String name)throws IOException  {
 
 		File f = new File(this.commandes.getCurrentDir()+"/"+name);
@@ -425,8 +428,7 @@ public class RessourcesFichiers {
 			f.delete();
 			return getFiles();
 		}
-		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
-		"<html xmlns=\"<xmlns />\" xml:lang=\"en\">"+
+		return "<html xmlns=\"<xmlns />\" xml:lang=\"en\">"+
 		"<head>" +
 		"<title>Delete</title>" +
 		" </head>" +
@@ -443,6 +445,7 @@ public class RessourcesFichiers {
 
 	@DELETE
 	@Path("/data/{dir}/{name}")
+	@Produces("text/html")
 	public String deleteFile(@PathParam( "dir" ) String dir,
 			@FormParam( "name" )final String name)throws IOException  {
 
