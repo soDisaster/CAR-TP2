@@ -40,6 +40,10 @@ public class RessourcesFichiers {
 
 
 	/*------------------------------------LOG IN/OUT ---------------------------------------------*/
+	/**
+	 * Login
+	 * @return un formulaire de connexion
+	 */
 	@GET
 	@Path("/login")
 	@Produces("text/html")
@@ -66,6 +70,10 @@ public class RessourcesFichiers {
 	}
 
 
+	/**
+	 * Login test sur le serveur FTP
+	 * @return un message d'erreur ou la liste des fichiers
+	 */
 	@POST
 	@Path("/data")
 	public String LogInAction(@FormParam( "name" )final String name,
@@ -91,7 +99,10 @@ public class RessourcesFichiers {
 		"</html>";
 	}
 
-
+	/**
+	 * Logout
+	 * @return Un formulaire de connexion
+	 */
 	@GET
 	@Path("/logout")
 	@Produces("text/html")
@@ -104,6 +115,10 @@ public class RessourcesFichiers {
 
 	/*------------------------------------READ FILES AND LIST DIR ---------------------------------------------*/
 
+	/**
+	 * Liste les fichiers dans "data"
+	 * @return  liste des fichiers
+	 */
 	@GET
 	@Path("/data")
 	@Produces("text/html")
@@ -124,7 +139,10 @@ public class RessourcesFichiers {
 
 	}
 
-
+	/**
+	 * Lit le fichier "name"
+	 * @return  Le contenu du fichier "name" ou la liste des fichiers si "name" est un dossier.
+	 */
 	@GET
 	@Path("/data/{name}")
 	@Produces("text/html")
@@ -164,7 +182,12 @@ public class RessourcesFichiers {
 		}
 		return "<h1>PATH NOT FOUND</h1>";
 	}
-
+	
+	
+	/**
+	 * Lit le fichier "dir/name"
+	 * @return  Le contenu du fichier "dir/name" ou la liste des fichiers si "dir/name" est un dossier.
+	 */
 	@GET
 	@Path("/data/{dir}/{name}")
 	@Produces("text/html")
@@ -209,6 +232,10 @@ public class RessourcesFichiers {
 
 	/*--------------------------------------- EDIT FILES ------------------------------------------------*/
 
+	/**
+	 * Retourne un formulaire pour modifier "name"
+	 * @return   Retourne un formulaire pour modifier "name"
+	 */
 	@GET
 	@Path("/data/{name}/edit")
 	@Produces("text/html")
@@ -239,6 +266,11 @@ public class RessourcesFichiers {
 		}
 		return "<h1>PATH NOT FOUND</h1>";
 	}
+	
+	/**
+	 * Retourne un formulaire pour modifier "dir/name"
+	 * @return   Retourne un formulaire pour modifier "dir/name"
+	 */
 	@GET
 	@Path("/data/{dir}/{name}/edit")
 	@Produces("text/html")
@@ -271,6 +303,10 @@ public class RessourcesFichiers {
 		return "<h1>PATH NOT FOUND</h1>";
 	}
 
+	/**
+	 * Modifie le fichier "/name" avec les @formParam récupérés 
+	 * @return   le contenu modifié du fichier
+	 */
 	@POST
 	@Path("/data/{name}")
 	public String updateFile(@PathParam("name") final String fileName,
@@ -290,6 +326,10 @@ public class RessourcesFichiers {
 	}
 
 
+	/**
+	 * Modifie le fichier "dir/name" avec les @formParam récupérés 
+	 * @return   le contenu modifié du fichier
+	 */
 	@POST
 	@Path("/data/{dir}/{name}")
 	public String updateFile(@PathParam("name") final String fileName,@PathParam( "dir" ) String dir,
@@ -309,6 +349,10 @@ public class RessourcesFichiers {
 
 	/*--------------------------------------- ADD FILES ------------------------------------------------*/
 
+	/**
+	 * Fait un formulaire pour ajouter un fichier 
+	 * @return le formulaire
+	 */
 	@GET
 	@Path("/data/add")
 	@Produces("text/html")
@@ -340,7 +384,7 @@ public class RessourcesFichiers {
 					"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
 					"xhr.onreadystatechange=function(){};"+
 					"xhr.open(\"PUT\", \"http://localhost:8080/rest/api/res/data\");"+
-					"xhr.send(\"<input type=\"text\" name=\"name\" id =\"name\"/>\");"+
+					"xhr.send(null);"+
 					"};"+
 					"</script>"+	
 					"<form action=\"/rest/api/res/data\">"+
@@ -351,6 +395,8 @@ public class RessourcesFichiers {
 		}
 		return "<h1>PATH NOT FOUND</h1>";
 	}
+	
+	
 	@GET
 	@Path("/data/{dir}/add")
 	@Produces("text/html")
@@ -386,7 +432,7 @@ public class RessourcesFichiers {
 					"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
 					"xhr.onreadystatechange=function(){};"+
 					"xhr.open(\"PUT\", \"http://localhost:8080/rest/api/res/data/"+dir+"\");"+
-					"xhr.send(\"<input type=\"text\" name=\"name\" id =\"name\"/>\");"+
+					"xhr.send(null);"+
 					"};"+
 					"</script>"+	
 					"<form action=\"/rest/api/res/data/"+dir+"\">"+
@@ -402,9 +448,11 @@ public class RessourcesFichiers {
 	@PUT
 	@Path("/data")
 	@Produces("text/html")
-	public String addActionFile()throws IOException  {/*@FormParam( "name" )final String name,
+	public String addActionFile(@FormParam( "name" )final String name,
+			@FormParam( "content" ) final String content)throws IOException  {/*@FormParam( "name" )final String name,
 		@FormParam( "content" ) final String content */
-		//System.out.println(name +" : "+ content);
+		System.out.println(name +" : "+ content);
+		
 		File f = new File(this.commandes.getCurrentDir()+"/toto.txt");
 		//write(f,content);
 		write(f,"uiiuiuiu");
