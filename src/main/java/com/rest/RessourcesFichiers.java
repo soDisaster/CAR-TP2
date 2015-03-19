@@ -29,52 +29,52 @@ public class RessourcesFichiers {
 	public RessourcesFichiers() throws UnknownHostException, IOException{
 		this.client = new FTPClient();
 		this.commandes=this.client.getCommandes();
-		this.login = false;
+		this.login = true;
 		//this.commandes.CMDSTOR("dd.txt");
 
 
 	}
-	
-	
 
-	
-	
-/*------------------------------------LOG IN/OUT ---------------------------------------------*/
+
+
+
+
+	/*------------------------------------LOG IN/OUT ---------------------------------------------*/
 	@GET
 	@Path("/login")
 	@Produces("text/html")
 	public String logIn() throws IOException {
-		
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
-					"<html xmlns=\"<xmlns />\" xml:lang=\"en\">"+
-					"<head>" +
-					"<title>Login</title>" +
-					" </head>" +
-					"<body>" +
-					" <form action=\"/rest/api/res/data\" method=\"POST\">" +
-					"<label for=\"name\">Name</label>" +
-					"<input type=\"text\" name=\"name\" />" +
-					"<br/>" +
-					"<label for=\"name\">Password</label>" +
-					"<input type=\"password\" name=\"pass\" />" +
-					" <br/>" +
-					"<input type=\"submit\" value=\"Submit\" />" +
-					"</form>" +
-					"</body>" +
-					"</html>";
-		
+
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
+				"<html xmlns=\"<xmlns />\" xml:lang=\"en\">"+
+				"<head>" +
+				"<title>Login</title>" +
+				" </head>" +
+				"<body>" +
+				" <form action=\"/rest/api/res/data\" method=\"POST\">" +
+				"<label for=\"name\">Name</label>" +
+				"<input type=\"text\" name=\"name\" />" +
+				"<br/>" +
+				"<label for=\"name\">Password</label>" +
+				"<input type=\"password\" name=\"pass\" />" +
+				" <br/>" +
+				"<input type=\"submit\" value=\"Submit\" />" +
+				"</form>" +
+				"</body>" +
+				"</html>";
+
 	}
-	
+
 
 	@POST
 	@Path("/data")
 	public String LogInAction(@FormParam( "name" )final String name,
 			@FormParam( "pass" ) final String password )throws IOException  {
-		
+
 		commandes.CMDUSER(name);
 		if(commandes.CMDPASS(password)){
 			this.login = true;
-		return getFiles();
+			return getFiles();
 		}
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
 		"<html xmlns=\"<xmlns />\" xml:lang=\"en\">"+
@@ -91,27 +91,27 @@ public class RessourcesFichiers {
 		"</html>";
 	}
 
-	
+
 	@GET
 	@Path("/logout")
 	@Produces("text/html")
 	public String logOut() throws IOException {
-		
-			this.login = false;
-			return logIn();
-		
+
+		this.login = false;
+		return logIn();
+
 	}
 
 	/*------------------------------------READ FILES AND LIST DIR ---------------------------------------------*/
-	
+
 	@GET
 	@Path("/data")
 	@Produces("text/html")
 	public String getFiles() throws IOException {
-		
+
 		if(!login)
 			return logIn();
-		
+
 		if(this.commandes.CMDCWD("/data")){
 			return list(new File(this.commandes.getCurrentDir())) +"<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/add\">"+
 					"<input type=\"submit\" value=\"Add File\">"+
@@ -129,19 +129,26 @@ public class RessourcesFichiers {
 	@Path("/data/{name}")
 	@Produces("text/html")
 	public String getFile(@PathParam( "name" ) String name)throws IOException  {
-		
+
 		if(!login)
 			return logIn();
-		
+
 		if(this.commandes.CMDCWD("/data")){
 			String result = searchFile(name);
 			if(this.commandes.getCurrentDir().equals("data")){
 				result += "<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/"+name+"/edit\">"+
 						"<input type=\"submit\" value=\"Edit\">"+
 						"</form></br>";
-				result += "<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/"+name+"\" method=\"DELETE\">"+
-						"<input type=\"submit\" value=\"Delete\">"+
-						"</form></br>";
+				result += "<button onclick= \"p()\">Delete</button>"+
+						"<script type=\"text/javascript\">"+
+						"function p(){"+	
+						"console.log(\"Ici\");"+
+						"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
+						"xhr.onreadystatechange=function(){};"+
+						"xhr.open(\"DELETE\", \"http://localhost:8080/rest/api/res/data/"+name+"\");"+
+						"xhr.send(null);"+
+						"};"+
+						"</script>";
 			}else{
 				result +="<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/add\">"+
 						"<input type=\"submit\" value=\"Add File\">"+
@@ -159,10 +166,10 @@ public class RessourcesFichiers {
 	@Path("/data/{dir}/{name}")
 	@Produces("text/html")
 	public String getFile(@PathParam( "name" ) String name,@PathParam( "dir" ) String dir)throws IOException  {
-		
+
 		if(!login)
 			return logIn();
-		
+
 		System.out.println(this.commandes.getCurrentDir());
 		if(this.commandes.CMDCWD("/data/"+dir)){
 			String result = searchFile(name);
@@ -170,9 +177,16 @@ public class RessourcesFichiers {
 				result += "<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/"+name+"/edit\">"+
 						"<input type=\"submit\" value=\"Edit\">"+
 						"</form></br>";
-				result += "<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/"+name+"\" method=\"DELETE\">"+
-						"<input type=\"submit\" value=\"Delete\">"+
-						"</form></br>";
+				result += "<button onclick= \"p()\">Delete</button>"+
+						"<script type=\"text/javascript\">"+
+						"function p(){"+	
+						"console.log(\"Ici\");"+
+						"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
+						"xhr.onreadystatechange=function(){};"+
+						"xhr.open(\"DELETE\", \"http://localhost:8080/rest/api/res/data/"+dir+"/"+name+"\");"+
+						"xhr.send(null);"+
+						"};"+
+						"</script>";
 			}else{
 				result +="<form action=\"/rest/api/res/"+this.commandes.getCurrentDir()+"/add\">"+
 						"<input type=\"submit\" value=\"Add File\">"+
@@ -193,10 +207,10 @@ public class RessourcesFichiers {
 	@Path("/data/{name}/edit")
 	@Produces("text/html")
 	public String editFile(@PathParam( "name" ) String name)throws IOException  {
-		
+
 		if(!login)
 			return logIn();
-		
+
 		System.out.println(this.commandes.getCurrentDir());
 		if(this.commandes.CMDCWD("/data")){
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
@@ -223,10 +237,10 @@ public class RessourcesFichiers {
 	@Path("/data/{dir}/{name}/edit")
 	@Produces("text/html")
 	public String editFile(@PathParam( "name" ) String name,@PathParam( "dir" ) String dir)throws IOException  {
-		
+
 		if(!login)
 			return logIn();
-		
+
 		System.out.println(this.commandes.getCurrentDir());
 		if(this.commandes.CMDCWD("/data/"+dir)){
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
@@ -256,13 +270,13 @@ public class RessourcesFichiers {
 	public String updateFile(@PathParam("name") final String fileName,
 			@FormParam( "name" )final String name,
 			@FormParam( "content" ) final String content )throws IOException  {
-		
+
 		if(!name.equals(fileName)){
 			File f = new File(this.commandes.getCurrentDir()+"/"+fileName);
 			f.delete();
 			this.commandes.CMDDELE(fileName);
 		}
-		
+
 		File f = new File(this.commandes.getCurrentDir()+"/"+name);
 		write(f,content);
 		this.commandes.CMDSTOR(name);
@@ -275,7 +289,7 @@ public class RessourcesFichiers {
 	public String updateFile(@PathParam("name") final String fileName,@PathParam( "dir" ) String dir,
 			@FormParam( "name" )final String name,
 			@FormParam( "content" ) final String content )throws IOException  {
-		
+
 		if(!name.equals(fileName)){
 			File f = new File(this.commandes.getCurrentDir()+"/"+fileName);
 			f.delete();
@@ -288,33 +302,44 @@ public class RessourcesFichiers {
 	}
 
 	/*--------------------------------------- ADD FILES ------------------------------------------------*/
-	
+
 	@GET
 	@Path("/data/add")
 	@Produces("text/html")
 	public String addFile()throws IOException  {
-		
+
 		if(!login)
 			return logIn();
-		
+
 		System.out.println(this.commandes.getCurrentDir());
 		if(this.commandes.CMDCWD("/data")){
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
-					"<html xmlns=\"<xmlns />\" xml:lang=\"en\">"+
-					"<head>" +
-					"<title>Edit file</title>" +
-					" </head>" +
-					"<body>" +
-					" <form action=\"/rest/api/res/data\" method=\"PUT\"  if-match=\"*\">" +
-					"<label for=\"name\">Name</label>" +
-					"<input type=\"text\" name=\"name\"/>" +
-					"<br/>" +
-					"Content :" +
-					"<TEXTAREA NAME=\"content\" COLS=40 ROWS=6></TEXTAREA>" +
-					" <br/>" +
-					"<input type=\"submit\" value=\"Submit\" />" +
-					"</form>" +
-					"</body>" +
+			return  "<!DOCTYPE html>"+
+					 "<html>"+
+					 "<head>	"+	
+					 "<meta charset=\"utf-8\" />"+
+					 "<title>Add File</title>"+
+
+					"</head>"+
+					"<body>"+
+					"<label for=\"name\">Name</label>"+
+					"<input type=\"text\" name=\"name\" id=\"name\"/>"+
+					"<br/>"+
+					"Content :"+
+					"<TEXTAREA id=\"content\" NAME=\"content\" COLS=40 ROWS=6></TEXTAREA>"+
+					"<br/>"+
+					"<button onclick= \"p()\">Submit</button>"+
+					"<script type=\"text/javascript\">"+
+					"function p(){"+
+					"$.ajax({"+
+					   " url: 'http://localhost:8080/rest/api/res/data',"+
+					   " type: 'PUT',"+
+					    "success: function(result) {"+
+					    "    // Do something with the result"+
+					    "}"+
+					"});"+
+					"};"+
+					"</script>"+	
+					"</body>"+
 					"</html>";
 		}
 		return "<h1>PATH NOT FOUND</h1>";
@@ -323,28 +348,41 @@ public class RessourcesFichiers {
 	@Path("/data/{dir}/add")
 	@Produces("text/html")
 	public String addFile(@PathParam( "dir" ) String dir)throws IOException  {
-		
+
 		if(!login)
 			return logIn();
-		
+
 		System.out.println(this.commandes.getCurrentDir());
 		if(this.commandes.CMDCWD("/data/"+dir)){
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
-					"<html xmlns=\"<xmlns />\" xml:lang=\"en\">"+
-					"<head>" +
-					"<title>Edit file</title>" +
-					" </head>" +
-					"<body>" +
-					" <form action=\"/rest/api/res/data/"+dir+"\" method=\"PUT\" if-match=\"*\">" +
-					"<label for=\"name\">Name</label>" +
-					"<input type=\"text\" name=\"name\"/>" +
-					"<br/>" +
-					"Content :" +
-					"<TEXTAREA NAME=\"content\" COLS=40 ROWS=6></TEXTAREA>" +
-					" <br/>" +
-					"<input type=\"submit\" value=\"Submit\" />" +
-					"</form>" +
-					"</body>" +
+			return 	 "<!DOCTYPE html>"+
+					 "<html>"+
+					 "<head>	"+	
+					 "<meta charset=\"utf-8\" />"+
+					 "<title>Add File</title>"+
+
+					"</head>"+
+					"<body>"+
+					"<label for=\"name\">Name</label>"+
+					"<input type=\"text\" name=\"name\" id=\"name\"/>"+
+					"<br/>"+
+					"Content :"+
+					"<TEXTAREA id=\"content\" NAME=\"content\" COLS=40 ROWS=6></TEXTAREA>"+
+					"<br/>"+
+					"<button onclick= \"p()\">Submit</button>"+
+					"<script type=\"text/javascript\">"+
+					"function p(){"+
+					"var obj_send = {"+
+					"name: document.getElementById('name').value,"+
+					"content: document.getElementById('content').textContent"+
+					"};"+		
+					"console.log(\"Ici\");"+
+					"xhr=window.ActiveXObject ? new ActiveXObject(\"Microsoft.XMLHTTP\") : new XMLHttpRequest();"+
+					"xhr.onreadystatechange=function(){};"+
+					"xhr.open(\"PUT\", \"http://localhost:8080/rest/api/res/data/"+dir+"\");"+
+					"xhr.send(null);"+
+					"};"+
+					"</script>"+	
+					"</body>"+
 					"</html>";
 
 		}
@@ -355,7 +393,7 @@ public class RessourcesFichiers {
 	@Path("/data")
 	public String addFile(@FormParam( "name" )final String name,
 			@FormParam( "content" ) final String content )throws IOException  {
-		
+		System.out.println(name +" : "+ content);
 		File f = new File(this.commandes.getCurrentDir()+"/"+name);
 		write(f,content);
 		this.commandes.CMDSTOR(name);
@@ -368,22 +406,23 @@ public class RessourcesFichiers {
 	public String addFile(@PathParam( "dir" ) String dir,
 			@FormParam( "name" )final String name,
 			@FormParam( "content" ) final String content )throws IOException  {
-		
+
 		File f = new File(this.commandes.getCurrentDir()+"/"+name);
 		write(f,content);
 		this.commandes.CMDSTOR(name);
 		return getFile(dir);
 	}
-/*--------------------------------------- DELETE FILES ------------------------------------------------*/
-	
-	
+	/*--------------------------------------- DELETE FILES ------------------------------------------------*/
+
+
 
 	@DELETE
 	@Path("/data/{name}")
 	public String deleteFile(@PathParam ( "name" )final String name)throws IOException  {
-		
+
 		File f = new File(this.commandes.getCurrentDir()+"/"+name);
 		if(this.commandes.CMDDELE(name)){
+			f.delete();
 			return getFiles();
 		}
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
@@ -406,9 +445,10 @@ public class RessourcesFichiers {
 	@Path("/data/{dir}/{name}")
 	public String deleteFile(@PathParam( "dir" ) String dir,
 			@FormParam( "name" )final String name)throws IOException  {
-		
+
 		File f = new File(this.commandes.getCurrentDir()+"/"+name);
 		if(this.commandes.CMDDELE(name)){
+			f.delete();
 			return getFile(dir);
 		}
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
@@ -425,8 +465,8 @@ public class RessourcesFichiers {
 		"</body>" +
 		"</html>";
 	}
-	
-	
+
+
 	/*-------------------------------------- not REST function-------------------------*/
 
 	public String searchFile(String name) throws IOException{
@@ -454,7 +494,7 @@ public class RessourcesFichiers {
 			System.out.println(f);
 
 			if(retour){
-				
+
 				if(!login)
 					return logIn();
 				System.out.println("Dans méthode isFile");
